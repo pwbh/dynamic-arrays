@@ -6,59 +6,59 @@ pub fn Vector(comptime T: type) type {
     return struct {
         allocator: Allocator,
         capacity: usize,
-        items: ?[]T,
+        len: usize,
+        arr: []T,
 
         const Self = @This();
 
         pub fn init(allocator: Allocator) Self {
             return .{
                 .allocator = allocator,
-                .capacity = 4,
-                .items = null,
+                .capacity = 0,
+                .len = 0,
+                .arr = undefined,
             };
         }
 
         pub fn get(self: *Self, i: usize) !T {
-            if (self.items) {
-                if (i >= self.items.len) {
-                    return error.IndexOutOfBounds;
-                }
-
-                return self.items[i];
+            if (i >= self.arr.len) {
+                return error.IndexOutOfBounds;
             }
 
-            return error.Empty;
+            return self.arr[i];
         }
 
         pub fn push_back(self: *Self, item: T) !void {
-            if (self.items) |items| {
-                const next_length = items.len + 1;
-
-                if (next_length > self.capacity) {
-                    self.capacity *= 2;
-                    self.items = try cpy_resize(self.allocator, self.capacity, items);
-                }
-
-                self.items.?[next_length] = item;
-            } else {
-                self.items = try cpy_resize(self.allocator, self.capacity, null);
+            if (self.len >= self.capacity) {
+                try self.resize();
             }
+
+            self.arr[self.len] = item;
+            self.len += 1;
         }
 
-        fn cpy_resize(allocator: Allocator, capacity: usize, current_items: ?[]T) ![]T {
-            const new_items = try allocator.alloc(T, capacity);
-            if (current_items) |items| {
-                @memcpy(new_items, items);
-                allocator.free(items);
+        fn resize(self: *Self) !void {
+            const new_capacity = if (self.capacity == 0) 2 else self.capacity * 2;
+            const new_items = try self.allocator.alloc(T, new_capacity);
+
+            if (self.capacity > 0) {
+                @memcpy(new_items[0..self.arr.len], self.arr);
             }
-            return new_items;
+
+            self.arr = new_items;
+            self.capacity = new_capacity;
         }
 
         pub fn destroy(self: *Self) void {
-            if (self.items) |items| {
-                self.allocator.free(items);
-                self.items = null;
+            if (self.capacity > 0) {
+                self.allocator.free(self.arr);
             }
+
+            self.* = undefined;
+        }
+
+        pub fn items(self: *Self) []T {
+            return self.arr[0..self.len];
         }
     };
 }
