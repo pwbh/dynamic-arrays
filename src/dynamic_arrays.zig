@@ -49,7 +49,7 @@ pub fn Vector(comptime T: type) type {
             self.capacity = new_capacity;
         }
 
-        pub fn destroy(self: *Self) void {
+        pub fn deinit(self: *Self) void {
             if (self.capacity > 0) {
                 self.allocator.free(self.arr);
             }

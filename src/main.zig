@@ -11,7 +11,21 @@ pub fn main() !void {
     defer vec.destroy();
     try vec.push_back(3);
 
-    for (vec.items(), 0..vec.len) |item, i| {
-        std.debug.print("Item {d}: {d}\n", .{ i, item });
+    for (vec.items()) |item| {
+        std.debug.print("{d}\n", .{item});
     }
+}
+
+test "Vector initializes and deinitializes" {
+    const allocator = std.testing.allocator;
+    var vec = Vector(i32).init(allocator);
+    defer vec.deinit();
+}
+
+test "Vector.get() returns the element at given index" {
+    const allocator = std.testing.allocator;
+    var vec = Vector(i32).init(allocator);
+    defer vec.deinit();
+    try vec.push_back(10);
+    std.debug.assert(try vec.get(0) == 10);
 }
