@@ -11,7 +11,7 @@ const expectError = std.testing.expectError;
 pub fn Vector(comptime T: type) type {
     return struct {
         allocator: Allocator,
-        capacity: usize,
+        cap: usize,
         len: usize,
         arr: []T,
 
@@ -20,14 +20,14 @@ pub fn Vector(comptime T: type) type {
         pub fn init(allocator: Allocator) Self {
             return .{
                 .allocator = allocator,
-                .capacity = 0,
+                .cap = 0,
                 .len = 0,
                 .arr = &.{},
             };
         }
 
         pub fn at(self: *Self, i: usize) !T {
-            if (self.capacity == 0) {
+            if (self.cap == 0) {
                 return error.Empty;
             }
 
@@ -39,7 +39,7 @@ pub fn Vector(comptime T: type) type {
         }
 
         pub fn front(self: *Self) !T {
-            if (self.capacity == 0) {
+            if (self.cap == 0) {
                 return error.Empty;
             }
 
@@ -47,7 +47,7 @@ pub fn Vector(comptime T: type) type {
         }
 
         pub fn back(self: *Self) !T {
-            if (self.capacity == 0) {
+            if (self.cap == 0) {
                 return error.Empty;
             }
 
@@ -55,8 +55,8 @@ pub fn Vector(comptime T: type) type {
         }
 
         pub fn pushBack(self: *Self, item: T) !void {
-            if (self.len >= self.capacity) {
-                try self.resize();
+            if (self.len >= self.cap) {
+                try self.resize(null);
             }
 
             self.arr[self.len] = item;
@@ -91,13 +91,34 @@ pub fn Vector(comptime T: type) type {
             };
         }
 
-        fn maxSize(self: *Self) usize {
+        pub fn empty(self: *Self) usize {
+            return self.cap == 0;
+        }
+
+        pub fn size(self: *Self) usize {
+            return self.len;
+        }
+
+        pub fn reserve(self: *Self, new_cap: usize) !void {
+            self.resize(new_cap);
+        }
+
+        pub fn capacity(self: *Self) usize {
+            return self.cap;
+        }
+
+        pub fn shrink_to_fit(self: *Self) !void {
+            _ = self;
+            // unimplemented
+        }
+
+        pub fn maxSize(self: *Self) usize {
             _ = self;
             return math.maxInt(usize);
         }
 
-        fn resize(self: *Self) !void {
-            const new_capacity = if (self.capacity == 0) 2 else self.capacity * 2;
+        fn resize(self: *Self, new_cap: ?usize) !void {
+            const new_capacity = new_cap orelse if (self.cap == 0) 2 else self.cap * 2;
             const new_items = try self.allocator.alloc(T, new_capacity);
 
             if (self.len > 0) {
@@ -107,11 +128,11 @@ pub fn Vector(comptime T: type) type {
             }
 
             self.arr = new_items;
-            self.capacity = new_capacity;
+            self.cap = new_capacity;
         }
 
         pub fn deinit(self: *Self) void {
-            if (self.capacity > 0) {
+            if (self.cap > 0) {
                 self.allocator.free(self.arr);
             }
 
