@@ -9,7 +9,7 @@ pub fn main() !void {
     const allocator = debug_allocator.allocator();
     var vec = Vector(i32).init(allocator);
     defer vec.deinit();
-    try vec.push_back(3);
+    try vec.pushBack(3);
 
     for (vec.data()) |item| {
         std.debug.print("{d}\n", .{item});

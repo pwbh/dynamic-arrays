@@ -54,7 +54,7 @@ pub fn Vector(comptime T: type) type {
             return self.arr[self.len - 1];
         }
 
-        pub fn push_back(self: *Self, item: T) !void {
+        pub fn pushBack(self: *Self, item: T) !void {
             if (self.len >= self.capacity) {
                 try self.resize();
             }
@@ -137,7 +137,7 @@ test "Vector.at() returns the element at given index or appropriate error" {
     defer vec.deinit();
     try expectError(error.Empty, vec.at(0));
     try expectError(error.Empty, vec.at(1));
-    try vec.push_back(10);
+    try vec.pushBack(10);
     try expect(try vec.at(0) == 10);
     try expectError(error.IndexOutOfBounds, vec.at(1));
 }
@@ -147,9 +147,9 @@ test "Vector.front() gets the first element in the array or returns an appropria
     var vec = Vector(i32).init(allocator);
     defer vec.deinit();
     try expectError(error.Empty, vec.front());
-    try vec.push_back(1);
-    try vec.push_back(2);
-    try vec.push_back(3);
+    try vec.pushBack(1);
+    try vec.pushBack(2);
+    try vec.pushBack(3);
     try expect(try vec.front() == 1);
     try expect(try vec.front() == try vec.at(0));
 }
@@ -159,10 +159,10 @@ test "Vector.back() gets the first element in the array or returns an appropriat
     var vec = Vector(i32).init(allocator);
     defer vec.deinit();
     try expectError(error.Empty, vec.back());
-    try vec.push_back(1);
+    try vec.pushBack(1);
     try expect(try vec.back() == 1);
-    try vec.push_back(2);
+    try vec.pushBack(2);
     try expect(try vec.back() == 2);
-    try vec.push_back(3);
+    try vec.pushBack(3);
     try expect(try vec.back() == 3);
 }
