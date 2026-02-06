@@ -69,6 +69,12 @@ pub fn Vector(comptime T: type) type {
                 .index = 0,
             };
         }
+        pub fn end(self: *Self) VectorReverseIterator(T) {
+            return .{
+                .buffer = self.arr[0..self.len],
+                .index = self.len - 1,
+            };
+        }
 
         fn maxSize(self: *Self) usize {
             _ = self;
@@ -120,6 +126,28 @@ pub fn VectorIterator(comptime T: type) type {
             if (idx >= self.buffer.len) return null;
             const item = self.buffer[idx];
             self.index.? += 1;
+            return item;
+        }
+    };
+}
+
+pub fn VectorReverseIterator(comptime T: type) type {
+    return struct {
+        buffer: []const T = &.{},
+        index: ?usize = 0,
+
+        const Self = @This();
+
+        pub fn first(self: *Self) ?T {
+            assert(self.index.? == 0);
+            return self.next();
+        }
+
+        pub fn next(self: *Self) ?T {
+            const idx = self.index orelse return null;
+            if (0 >= idx) return null;
+            const item = self.buffer[idx];
+            self.index.? -= 1;
             return item;
         }
     };

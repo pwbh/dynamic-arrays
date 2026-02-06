@@ -20,6 +20,12 @@ pub fn main() !void {
     while (iterator.next()) |item| {
         std.debug.print("item {d}\n", .{item});
     }
+
+    var reverse_iterator = vec.end();
+
+    while (reverse_iterator.next()) |item| {
+        std.debug.print("item : {d}\n", .{item});
+    }
 }
 
 test {
