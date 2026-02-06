@@ -69,7 +69,22 @@ pub fn Vector(comptime T: type) type {
                 .index = 0,
             };
         }
-        pub fn end(self: *Self) VectorReverseIterator(T) {
+
+        pub fn end(self: *Self) VectorIterator(T) {
+            return .{
+                .buffer = self.arr[0..self.len],
+                .index = self.len - 1,
+            };
+        }
+
+        pub fn rbegin(self: *Self) VectorReverseIterator(T) {
+            return .{
+                .buffer = self.arr[0..self.len],
+                .index = 0,
+            };
+        }
+
+        pub fn rend(self: *Self) VectorReverseIterator(T) {
             return .{
                 .buffer = self.arr[0..self.len],
                 .index = self.len - 1,
