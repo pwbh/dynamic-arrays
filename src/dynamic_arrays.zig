@@ -113,4 +113,19 @@ test "Vector.front() gets the first element in the array or returns an appropria
     try vec.push_back(1);
     try vec.push_back(2);
     try vec.push_back(3);
+    try expect(try vec.front() == 1);
+    try expect(try vec.front() == try vec.at(0));
+}
+
+test "Vector.back() gets the first element in the array or returns an appropriate error" {
+    const allocator = std.testing.allocator;
+    var vec = Vector(i32).init(allocator);
+    defer vec.deinit();
+    try expectError(error.Empty, vec.back());
+    try vec.push_back(1);
+    try expect(try vec.back() == 1);
+    try vec.push_back(2);
+    try expect(try vec.back() == 2);
+    try vec.push_back(3);
+    try expect(try vec.back() == 3);
 }
