@@ -1,6 +1,9 @@
 const std = @import("std");
+const math = std.math;
 
 const Allocator = std.mem.Allocator;
+
+const assert = std.debug.assert;
 
 const expect = std.testing.expect;
 const expectError = std.testing.expectError;
@@ -60,6 +63,18 @@ pub fn Vector(comptime T: type) type {
             self.len += 1;
         }
 
+        pub fn begin(self: *Self) VectorIterator(T) {
+            return .{
+                .buffer = self.arr[0..self.len],
+                .index = 0,
+            };
+        }
+
+        fn maxSize(self: *Self) usize {
+            _ = self;
+            return math.maxInt(usize);
+        }
+
         fn resize(self: *Self) !void {
             const new_capacity = if (self.capacity == 0) 2 else self.capacity * 2;
             const new_items = try self.allocator.alloc(T, new_capacity);
@@ -84,6 +99,28 @@ pub fn Vector(comptime T: type) type {
 
         pub fn data(self: *Self) []T {
             return self.arr[0..self.len];
+        }
+    };
+}
+
+pub fn VectorIterator(comptime T: type) type {
+    return struct {
+        buffer: []const T = &.{},
+        index: ?usize = 0,
+
+        const Self = @This();
+
+        pub fn first(self: *Self) ?T {
+            assert(self.index.? == 0);
+            return self.next();
+        }
+
+        pub fn next(self: *Self) ?T {
+            const idx = self.index orelse return null;
+            if (idx >= self.buffer.len) return null;
+            const item = self.buffer[idx];
+            self.index.? += 1;
+            return item;
         }
     };
 }

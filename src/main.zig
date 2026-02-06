@@ -8,11 +8,17 @@ pub fn main() !void {
     var debug_allocator = std.heap.DebugAllocator(.{}){};
     const allocator = debug_allocator.allocator();
     var vec = Vector(i32).init(allocator);
-    defer vec.destroy();
+    defer vec.deinit();
     try vec.push_back(3);
 
     for (vec.data()) |item| {
         std.debug.print("{d}\n", .{item});
+    }
+
+    var iterator = vec.begin();
+
+    while (iterator.next()) |item| {
+        std.debug.print("item {d}\n", .{item});
     }
 }
 
