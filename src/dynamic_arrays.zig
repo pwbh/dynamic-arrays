@@ -19,7 +19,7 @@ pub fn Vector(comptime T: type) type {
                 .allocator = allocator,
                 .capacity = 0,
                 .len = 0,
-                .arr = undefined,
+                .arr = &.{},
             };
         }
 
@@ -67,7 +67,7 @@ pub fn Vector(comptime T: type) type {
             if (self.len > 0) {
                 @memcpy(new_items[0..self.len], self.arr[0..self.len]);
                 self.allocator.free(self.arr);
-                self.arr = undefined;
+                self.arr = &.{};
             }
 
             self.arr = new_items;
