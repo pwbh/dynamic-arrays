@@ -131,16 +131,48 @@ pub fn Vector(comptime T: type) type {
             self.cap = new_capacity;
         }
 
+        /// Dynamic array become undefined after calling `deinit`.
         pub fn deinit(self: *Self) void {
-            if (self.cap > 0) {
-                self.allocator.free(self.arr);
-            }
-
+            self.clear();
             self.* = undefined;
         }
 
         pub fn data(self: *Self) []T {
             return self.arr[0..self.len];
+        }
+
+        pub fn clear(self: *Self) void {
+            if (self.cap > 0) {
+                self.allocator.free(self.arr);
+            }
+
+            self.arr = &.{};
+            self.cap = 0;
+            self.len = 0;
+        }
+
+        pub fn insert(self: *Self, pos: usize, element: T) !void {
+            if (pos >= self.len) {
+                return error.IndexOutOfBounds;
+            }
+
+            if (self.len + 1 > self.cap) {
+                try self.resize(null);
+            }
+
+            const dest = self.arr[(pos + 1)..(self.len + 1)];
+            const src = self.arr[pos..self.len];
+
+            @memmove(dest, src);
+
+            self.arr[pos] = element;
+            self.len += 1;
+        }
+
+        pub fn insertRange(self: *Self, pos: usize, elements: []T) !void {
+            _ = self;
+            _ = pos;
+            _ = elements;
         }
     };
 }

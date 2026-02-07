@@ -9,22 +9,22 @@ pub fn main() !void {
     const allocator = debug_allocator.allocator();
     var vec = Vector(i32).init(allocator);
     defer vec.deinit();
+
+    try vec.pushBack(0);
+    try vec.pushBack(1);
+    try vec.pushBack(2);
     try vec.pushBack(3);
 
-    for (vec.data()) |item| {
-        std.debug.print("{d}\n", .{item});
+    for (vec.data()) |n| {
+        std.debug.print("{d}\n", .{n});
     }
 
-    var iterator = vec.begin();
+    std.debug.print("--------insert-------\n", .{});
 
-    while (iterator.next()) |item| {
-        std.debug.print("item {d}\n", .{item});
-    }
+    try vec.insert(2, 5);
 
-    var reverse_iterator = vec.end();
-
-    while (reverse_iterator.next()) |item| {
-        std.debug.print("item : {d}\n", .{item});
+    for (vec.data()) |n| {
+        std.debug.print("{d}\n", .{n});
     }
 }
 
