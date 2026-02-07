@@ -27,10 +27,6 @@ pub fn Vector(comptime T: type) type {
         }
 
         pub fn at(self: *Self, i: usize) !T {
-            if (self.cap == 0) {
-                return error.Empty;
-            }
-
             if (i >= self.len) {
                 return error.IndexOutOfBounds;
             }
@@ -255,8 +251,8 @@ test "Vector.at() returns the element at given index or appropriate error" {
     const allocator = std.testing.allocator;
     var vec = Vector(i32).init(allocator);
     defer vec.deinit();
-    try expectError(error.Empty, vec.at(0));
-    try expectError(error.Empty, vec.at(1));
+    try expectError(error.IndexOutOfBounds, vec.at(0));
+    try expectError(error.IndexOutOfBounds, vec.at(1));
     try vec.pushBack(10);
     try expect(try vec.at(0) == 10);
     try expectError(error.IndexOutOfBounds, vec.at(1));
