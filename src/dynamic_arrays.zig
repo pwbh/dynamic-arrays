@@ -262,3 +262,21 @@ test "Vector.back() gets the first element in the array or returns an appropriat
     try vec.pushBack(3);
     try expect(try vec.back() == 3);
 }
+
+test "Vector.insert() inserts the new item in specific pos" {
+    const allocator = std.testing.allocator;
+    var vec = Vector(i32).init(allocator);
+    defer vec.deinit();
+    try vec.pushBack(0);
+    try vec.pushBack(1);
+    try vec.pushBack(2);
+    try vec.pushBack(3); // follow the chain of inserts, this element is the last one in the array.
+    try expect(try vec.at(1) == 1);
+    try vec.insert(1, 10);
+    try expect(try vec.at(1) == 10);
+    try expectError(error.IndexOutOfBounds, vec.insert(100, 100));
+    try expectError(error.IndexOutOfBounds, vec.insert(vec.len, 5555));
+    try vec.insert(vec.len - 1, 100);
+    try expect(try vec.at(vec.len - 2) == 100);
+    try expect(try vec.at(vec.len - 1) == 3);
+}
