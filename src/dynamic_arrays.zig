@@ -107,9 +107,8 @@ pub fn Vector(comptime T: type) type {
             return self.cap;
         }
 
-        pub fn shrink_to_fit(self: *Self) !void {
-            _ = self;
-            // unimplemented
+        pub fn shrinkToFit(self: *Self) !void {
+            self.resize(self.len);
         }
 
         pub fn maxSize(self: *Self) usize {
