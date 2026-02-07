@@ -155,7 +155,7 @@ pub fn Vector(comptime T: type) type {
                 try self.resize(null);
             }
 
-            const dest = self.arr[(pos + 1)..(self.len + 1)];
+            const dest = self.arr[pos + 1 .. self.len + 1];
             const src = self.arr[pos..self.len];
 
             @memmove(dest, src);
@@ -169,8 +169,12 @@ pub fn Vector(comptime T: type) type {
                 return error.IndexOutOfBounds;
             }
 
-            if (elements.len + self.len > self.cap) {
-                try self.resize(null);
+            const min_cap = self.len + elements.len;
+
+            std.debug.print("min_cap:{d}", .{min_cap});
+
+            if (min_cap > self.cap) {
+                try self.resize(min_cap);
             }
 
             // move existing elements away
@@ -181,9 +185,11 @@ pub fn Vector(comptime T: type) type {
             self.len += elements.len;
         }
 
-        pub fn appendRange(self: *Self, elements: []T) !void {
-            if (self.len + elements.len > self.cap) {
-                self.resize();
+        pub fn appendRange(self: *Self, elements: []const T) !void {
+            const min_cap = self.len + elements.len;
+
+            if (min_cap > self.cap) {
+                self.resize(min_cap);
             }
 
             @memcpy(self.arr[self.len .. self.len + elements.len], elements);
@@ -320,12 +326,10 @@ test "Vector.insertRange() inserts range of new items at specific pos" {
     try vec.pushBack(1);
     try vec.pushBack(2);
     try vec.pushBack(3); // follow the chain of inserts, this element is the last one in the array.
-    try expect(try vec.at(1) == 1);
-    try vec.insert(1, 10);
-    try expect(try vec.at(1) == 10);
-    try expectError(error.IndexOutOfBounds, vec.insert(100, 100));
-    try expectError(error.IndexOutOfBounds, vec.insert(vec.len, 5555));
-    try vec.insert(vec.len - 1, 100);
-    try expect(try vec.at(vec.len - 2) == 100);
-    try expect(try vec.at(vec.len - 1) == 3);
+    try expectError(error.IndexOutOfBounds, vec.insertRange(100, &.{ 4, 5, 6 }));
+    try expectError(error.IndexOutOfBounds, vec.insertRange(vec.len, &.{ 4, 5, 6 }));
+    try vec.insertRange(vec.len - 1, &.{ 4, 5, 6 });
+    try expect(try vec.at(vec.len - 3) == 4);
+    try expect(try vec.at(vec.len - 2) == 5);
+    try expect(try vec.at(vec.len - 1) == 6);
 }
