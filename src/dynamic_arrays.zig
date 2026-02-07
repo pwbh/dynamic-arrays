@@ -173,6 +173,31 @@ pub fn Vector(comptime T: type) type {
             _ = pos;
             _ = elements;
         }
+
+        pub fn appendRange(self: *Self, elements: []T) !void {
+            if (self.len + elements.len > self.cap) {
+                self.resize();
+            }
+
+            @memcpy(self.arr[self.len .. self.len + elements.len], elements);
+
+            self.len += elements.len;
+        }
+
+        pub fn popBack(self: *Self) !void {
+            if (0 > self.len - 1) {
+                return error.Empty;
+            }
+
+            self.arr[self.len - 1] = undefined;
+            self.len -= 1;
+        }
+
+        pub fn swap(self: *Self, other: Vector(T)) !void {
+            const current = self.*;
+            other.* = self.*;
+            self.* = current;
+        }
     };
 }
 
