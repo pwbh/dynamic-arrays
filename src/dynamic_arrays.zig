@@ -169,27 +169,19 @@ pub fn Vector(comptime T: type) type {
                 return error.IndexOutOfBounds;
             }
 
-            const min_cap = self.len + elements.len;
-
-            std.debug.print("min_cap:{d}", .{min_cap});
-
-            if (min_cap > self.cap) {
-                try self.resize(min_cap);
+            if (self.len + elements.len > self.cap) {
+                try self.resize(null);
             }
 
-            // move existing elements away
             @memmove(self.arr[pos + elements.len .. pos + elements.len + elements.len], self.arr[pos .. pos + elements.len]);
-            // copy new elements into the pos slots
             @memcpy(self.arr[pos .. pos + elements.len], elements);
 
             self.len += elements.len;
         }
 
         pub fn appendRange(self: *Self, elements: []const T) !void {
-            const min_cap = self.len + elements.len;
-
-            if (min_cap > self.cap) {
-                self.resize(min_cap);
+            if (self.len + elements.len > self.cap) {
+                self.resize(null);
             }
 
             @memcpy(self.arr[self.len .. self.len + elements.len], elements);
