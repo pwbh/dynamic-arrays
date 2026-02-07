@@ -164,10 +164,21 @@ pub fn Vector(comptime T: type) type {
             self.len += 1;
         }
 
-        pub fn insertRange(self: *Self, pos: usize, elements: []T) !void {
-            _ = self;
-            _ = pos;
-            _ = elements;
+        pub fn insertRange(self: *Self, pos: usize, elements: []const T) !void {
+            if (pos >= self.len) {
+                return error.IndexOutOfBounds;
+            }
+
+            if (elements.len + self.len > self.cap) {
+                try self.resize(null);
+            }
+
+            // move existing elements away
+            @memmove(self.arr[pos + elements.len .. pos + elements.len + elements.len], self.arr[pos .. pos + elements.len]);
+            // copy new elements into the pos slots
+            @memcpy(self.arr[pos .. pos + elements.len], elements);
+
+            self.len += elements.len;
         }
 
         pub fn appendRange(self: *Self, elements: []T) !void {
@@ -283,7 +294,25 @@ test "Vector.back() gets the first element in the array or returns an appropriat
     try expect(try vec.back() == 3);
 }
 
-test "Vector.insert() inserts the new item in specific pos" {
+test "Vector.insert() inserts the new item at specific pos" {
+    const allocator = std.testing.allocator;
+    var vec = Vector(i32).init(allocator);
+    defer vec.deinit();
+    try vec.pushBack(0);
+    try vec.pushBack(1);
+    try vec.pushBack(2);
+    try vec.pushBack(3); // follow the chain of inserts, this element is the last one in the array.
+    try expect(try vec.at(1) == 1);
+    try vec.insert(1, 10);
+    try expect(try vec.at(1) == 10);
+    try expectError(error.IndexOutOfBounds, vec.insert(100, 100));
+    try expectError(error.IndexOutOfBounds, vec.insert(vec.len, 5555));
+    try vec.insert(vec.len - 1, 100);
+    try expect(try vec.at(vec.len - 2) == 100);
+    try expect(try vec.at(vec.len - 1) == 3);
+}
+
+test "Vector.insertRange() inserts range of new items at specific pos" {
     const allocator = std.testing.allocator;
     var vec = Vector(i32).init(allocator);
     defer vec.deinit();

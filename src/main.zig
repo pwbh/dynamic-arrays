@@ -26,6 +26,16 @@ pub fn main() !void {
     for (vec.data()) |n| {
         std.debug.print("{d}\n", .{n});
     }
+
+    var items_insert: []const i32 = &.{ 10, 5, 3, 2 };
+
+    std.debug.print("--------insertRange-------\n", .{});
+
+    try vec.insertRange(4, items_insert[0..]);
+
+    for (vec.data()) |n| {
+        std.debug.print("{d}\n", .{n});
+    }
 }
 
 test {
