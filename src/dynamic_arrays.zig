@@ -184,8 +184,6 @@ pub fn Vector(comptime T: type) type {
                 try self.resize(new_cap);
             }
 
-            std.debug.print("pos: {d} self.len: {d}\n", .{ pos, self.len });
-
             if (pos < self.len) {
                 const diff = self.len - pos;
                 @memmove(self.arr[pos + elements.len .. pos + elements.len + diff], self.arr[pos .. pos + diff]);
@@ -338,10 +336,7 @@ test "Vector.insertRange() inserts range of new items at specific pos" {
     try expectError(error.IndexOutOfBounds, vec.insertRange(100, &.{ 4, 5, 6 }));
     try expectError(error.IndexOutOfBounds, vec.insertRange(vec.len, &.{ 4, 5, 6 }));
     try vec.insertRange(vec.len - 1, &.{ 4, 5, 6 });
-    for (vec.data()) |item| {
-        std.debug.print("item:{d}\n", .{item});
-    }
-    try expect(try vec.at(vec.len - 3) == 4);
-    try expect(try vec.at(vec.len - 2) == 5);
-    try expect(try vec.at(vec.len - 1) == 6);
+    try expect(try vec.at(vec.len - 4) == 4);
+    try expect(try vec.at(vec.len - 3) == 5);
+    try expect(try vec.at(vec.len - 2) == 6);
 }
