@@ -184,10 +184,11 @@ pub fn Vector(comptime T: type) type {
                 try self.resize(new_cap);
             }
 
-            std.debug.print("pos: {d} self.len: {d}", .{ pos, self.len });
+            std.debug.print("pos: {d} self.len: {d}\n", .{ pos, self.len });
 
             if (pos < self.len) {
-                @memmove(self.arr[pos + elements.len .. pos + elements.len + elements.len], self.arr[pos .. pos + elements.len]);
+                const diff = self.len - pos;
+                @memmove(self.arr[pos + elements.len .. pos + elements.len + diff], self.arr[pos .. pos + diff]);
             }
 
             @memcpy(self.arr[pos .. pos + elements.len], elements);
