@@ -114,6 +114,11 @@ pub fn Vector(comptime T: type) type {
 
         fn resize(self: *Self, new_cap: ?usize) !void {
             const new_capacity = new_cap orelse if (self.cap == 0) 2 else self.cap * 2;
+
+            if (new_capacity == self.cap) {
+                return;
+            }
+
             const new_items = try self.allocator.alloc(T, new_capacity);
 
             if (self.len > 0) {
@@ -170,10 +175,21 @@ pub fn Vector(comptime T: type) type {
             }
 
             if (self.len + elements.len > self.cap) {
-                try self.resize(null);
+                var new_cap = self.cap;
+
+                while (new_cap < self.len + elements.len) {
+                    new_cap *= 2;
+                }
+
+                try self.resize(new_cap);
             }
 
-            @memmove(self.arr[pos + elements.len .. pos + elements.len + elements.len], self.arr[pos .. pos + elements.len]);
+            std.debug.print("pos: {d} self.len: {d}", .{ pos, self.len });
+
+            if (pos < self.len) {
+                @memmove(self.arr[pos + elements.len .. pos + elements.len + elements.len], self.arr[pos .. pos + elements.len]);
+            }
+
             @memcpy(self.arr[pos .. pos + elements.len], elements);
 
             self.len += elements.len;
@@ -321,6 +337,9 @@ test "Vector.insertRange() inserts range of new items at specific pos" {
     try expectError(error.IndexOutOfBounds, vec.insertRange(100, &.{ 4, 5, 6 }));
     try expectError(error.IndexOutOfBounds, vec.insertRange(vec.len, &.{ 4, 5, 6 }));
     try vec.insertRange(vec.len - 1, &.{ 4, 5, 6 });
+    for (vec.data()) |item| {
+        std.debug.print("item:{d}\n", .{item});
+    }
     try expect(try vec.at(vec.len - 3) == 4);
     try expect(try vec.at(vec.len - 2) == 5);
     try expect(try vec.at(vec.len - 1) == 6);
