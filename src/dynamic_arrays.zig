@@ -339,4 +339,5 @@ test "Vector.insertRange() inserts range of new items at specific pos" {
     try expect(try vec.at(vec.len - 4) == 4);
     try expect(try vec.at(vec.len - 3) == 5);
     try expect(try vec.at(vec.len - 2) == 6);
+    try expect(try vec.at(vec.len - 1) == 3);
 }
