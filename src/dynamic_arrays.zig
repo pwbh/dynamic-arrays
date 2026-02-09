@@ -87,8 +87,8 @@ pub fn Vector(comptime T: type) type {
             };
         }
 
-        pub fn empty(self: *Self) usize {
-            return self.cap == 0;
+        pub fn empty(self: *Self) bool {
+            return self.len == 0;
         }
 
         pub fn size(self: *Self) usize {
@@ -96,7 +96,7 @@ pub fn Vector(comptime T: type) type {
         }
 
         pub fn reserve(self: *Self, new_cap: usize) !void {
-            self.resize(new_cap);
+            return self.resize(new_cap);
         }
 
         pub fn capacity(self: *Self) usize {
@@ -104,7 +104,7 @@ pub fn Vector(comptime T: type) type {
         }
 
         pub fn shrinkToFit(self: *Self) !void {
-            self.resize(self.len);
+            return self.resize(self.len);
         }
 
         pub fn maxSize(self: *Self) usize {
@@ -340,4 +340,51 @@ test "Vector.insertRange() inserts range of new items at specific pos" {
     try expect(try vec.at(vec.len - 3) == 5);
     try expect(try vec.at(vec.len - 2) == 6);
     try expect(try vec.at(vec.len - 1) == 3);
+}
+
+test "Vector.shrinkToFit() shrinks the vector capacity to its actual length" {
+    const allocator = std.testing.allocator;
+    var vec = Vector(i32).init(allocator);
+    defer vec.deinit();
+    try vec.pushBack(0);
+    try vec.pushBack(1);
+    try vec.pushBack(2);
+    try vec.pushBack(3);
+    try vec.pushBack(4);
+    try vec.pushBack(5);
+    try vec.pushBack(6);
+    try vec.pushBack(7);
+    try vec.shrinkToFit();
+    try expect(vec.len == vec.cap);
+}
+
+test "Vector.empty() returns whether the container is empty" {
+    const allocator = std.testing.allocator;
+    var vec = Vector(i32).init(allocator);
+    defer vec.deinit();
+    try expect(vec.empty());
+    try vec.pushBack(0);
+    try vec.pushBack(1);
+    try vec.pushBack(2);
+    try vec.pushBack(3);
+    try vec.pushBack(4);
+    try vec.pushBack(5);
+    try vec.pushBack(6);
+    try vec.pushBack(7);
+    try expect(!vec.empty());
+    vec.clear();
+    try expect(vec.empty());
+}
+
+test "Vector.data() returns the slice with actual data" {
+    const allocator = std.testing.allocator;
+    var vec = Vector(i32).init(allocator);
+    defer vec.deinit();
+    try vec.pushBack(0);
+    try vec.pushBack(1);
+    try vec.pushBack(2);
+    try vec.pushBack(3);
+    try vec.pushBack(4);
+    const data = vec.data();
+    try expect(std.mem.eql(i32, data, &.{ 0, 1, 2, 3, 4 }));
 }
