@@ -271,6 +271,16 @@ test "Vector initializes and deinitializes" {
     defer vec.deinit();
 }
 
+test "Vector.pushBack() adds new elements at the end of the container" {
+    const allocator = std.testing.allocator;
+    var vec = Vector(i32).init(allocator);
+    defer vec.deinit();
+    try vec.pushBack(10);
+    try expect(try vec.at(vec.len - 1) == 10);
+    try vec.pushBack(20);
+    try expect(try vec.at(vec.len - 1) == 20);
+}
+
 test "Vector.at() returns the element at given index or appropriate error" {
     const allocator = std.testing.allocator;
     var vec = Vector(i32).init(allocator);
