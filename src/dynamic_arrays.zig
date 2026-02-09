@@ -479,4 +479,9 @@ test "Vector.popBack() deletes the last element in the container" {
     try expect(try vec.at(vec.len - 1) == 4);
     try vec.popBack();
     try expect(try vec.at(vec.len - 1) == 3);
+    try vec.popBack();
+    try vec.popBack();
+    try vec.popBack();
+    try vec.popBack();
+    try expect(vec.empty());
 }
