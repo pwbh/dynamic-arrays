@@ -452,3 +452,17 @@ test "Vector.rend() returns a reversed iterator from the end of the container" {
     try expect(iterator.next() == try vec.at(vec.len - 5));
     try expect(iterator.next() == null);
 }
+
+test "Vector.rbegin() returns a iterator from the start of the container" {
+    const allocator = std.testing.allocator;
+    var vec = Vector(i32).init(allocator);
+    defer vec.deinit();
+    try vec.pushBack(0);
+    try vec.pushBack(1);
+    try vec.pushBack(2);
+    try vec.pushBack(3);
+    try vec.pushBack(4);
+    var iterator = vec.rbegin();
+    try expect(iterator.next() == try vec.at(0));
+    try expect(iterator.next() == null);
+}
