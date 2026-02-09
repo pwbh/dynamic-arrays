@@ -398,3 +398,35 @@ test "Vector.data() returns the slice with actual data" {
     const data = vec.data();
     try expect(std.mem.eql(i32, data, &.{ 0, 1, 2, 3, 4 }));
 }
+
+test "Vector.end() returns an iterator from the end of the container" {
+    const allocator = std.testing.allocator;
+    var vec = Vector(i32).init(allocator);
+    defer vec.deinit();
+    try vec.pushBack(0);
+    try vec.pushBack(1);
+    try vec.pushBack(2);
+    try vec.pushBack(3);
+    try vec.pushBack(4);
+    var iterator = vec.end();
+    try expect(iterator.next() == try vec.at(vec.len - 1));
+    try expect(iterator.next() == null);
+}
+
+test "Vector.start() returns an iterator from the start of the container" {
+    const allocator = std.testing.allocator;
+    var vec = Vector(i32).init(allocator);
+    defer vec.deinit();
+    try vec.pushBack(0);
+    try vec.pushBack(1);
+    try vec.pushBack(2);
+    try vec.pushBack(3);
+    try vec.pushBack(4);
+    var iterator = vec.begin();
+    try expect(iterator.next() == try vec.at(0));
+    try expect(iterator.next() == try vec.at(1));
+    try expect(iterator.next() == try vec.at(2));
+    try expect(iterator.next() == try vec.at(3));
+    try expect(iterator.next() == try vec.at(4));
+    try expect(iterator.next() == null);
+}
